@@ -1,0 +1,29 @@
+{
+  "name": "hexo-artitalk-static",
+  "version": "0.0.1",
+  "description": "Artitalk 静态版，本地编写说说(就像写文章一样)，需要 hexo g 生成",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Lete114/hexo-artitalk-static.git"
+  },
+  "keywords": [
+    "artitalk"
+  ],
+  "author": "Lete114 <i@imlete.cn>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lete114/hexo-artitalk-static/issues"
+  },
+  "homepage": "https://github.com/Lete114/hexo-artitalk-static#readme",
+  "peerDependencies": {
+    "ejs": "^3.1.7",
+    "hexo-fs": "^4.1.1"
+  },
+  "dependencies": {
+    "yaml": "^2.2.1"
+  }
+}

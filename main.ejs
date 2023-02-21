@@ -1,0 +1,168 @@
+<% (Array.isArray(data.imports.before) ? data.imports.before : []).forEach(function(source, i){ %>
+<%- source %>
+<% }) %>
+
+
+<style>
+  .at_items {
+    padding: 0;
+    list-style: none;
+  }
+  .at_item {
+    display: flex;
+  }
+  .at_avatar {
+    border: 1px solid #ddd;
+    padding: 2px;
+    float: left;
+    border-radius: 64px;
+    transition: all 1s;
+    width: 48px;
+    height: 48px;
+  }
+  .at_content_container {
+    margin: 0 0 20px 20px;
+    position: relative;
+    padding: 10px;
+    border-radius: 5px;
+    background: var(--at-color, #9bcd9b);
+  }
+  .at_content_container::before {
+    content: '';
+    position: absolute;
+    top: 20px; /* 将箭头位置垂直居中 */
+    left: -10px; /* 设置箭头的左侧位置 */
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid var(--at-color, #9bcd9b); /* 设置箭头的样式和颜色 */
+    transform: translateY(-50%); /* 将箭头位置垂直居中 */
+  }
+  .at_item:nth-child(odd) .at_content_container {
+    --at-color: #ff9e77;
+  }
+  .at_content {
+    white-space: pre-wrap;
+  }
+  .at_time {
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .at_more {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0 10px;
+  }
+  .at_more_btn {
+    opacity: 0.8;
+    width: auto;
+    min-width: 80px;
+    height: 36px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    line-height: 20px;
+    font-weight: 600;
+    font-size: 12px;
+    border-radius: 12px;
+    background-color: #f4645f;
+  }
+  .at_more_btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    cursor: no-drop;
+  }
+  .at_loading {
+    animation: at_loading 0.8s linear infinite;
+  }
+  .at_more_loading {
+    display: none;
+    height: inherit;
+  }
+  @keyframes at_loading {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+<% const items = artitalk.splice(data.pageSize) %>
+<div id="at_main">
+  <ul class="at_items">
+    <% artitalk.forEach(item => { %>
+    <li class="at_item">
+      <img class="at_avatar" alt="avatar" />
+      <div class="at_content_container">
+        <div class="at_content"><%- item.content %></div>
+        <div class="at_time"><%= formatDate(item.timestamp) %></div>
+      </div>
+    </li>
+    <%});%>
+  </ul>
+  <div class="at_more">
+    <button class="at_more_btn">加载更多</button>
+    <svg class="at_more_loading at_loading" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" fill="none" stroke="currentColor" stroke-width="8" r="40" stroke-linecap="round" stroke-dasharray="128 120"></circle>
+    </svg>
+  </div>
+</div>
+
+<script>
+  const pageSize = <%= data.pageSize %>
+  const artitalk = <%-JSON.stringify(items)%>
+  const at_more = document.querySelector('.at_more')
+
+  at_more.style.display = artitalk.length>pageSize ? '' : 'none'
+
+  const avatar = document.querySelectorAll('.at_avatar')
+  avatar.forEach((el)=>{
+    el.src = '<%-data.logo%>'
+  })
+
+  <%if(data.avatar){%>
+  const img = new Image()
+  img.src = '<%= data.avatar %>'
+  img.style.display = 'none'
+  document.body.appendChild(img)
+  img.onload = function(){
+    document.body.removeChild(img)
+    avatar.forEach((el)=>{
+      el.src = img.src
+    })
+  }
+  <%}%>
+
+  let endLi = document.querySelectorAll('.at_item')
+  endLi = endLi[endLi.length-1]
+
+  const at_more_btn = document.querySelector('.at_more_btn')
+  const at_more_btn_text = at_more_btn.textContent
+  const at_more_loading = document.querySelector('.at_more_loading').cloneNode(true)
+  at_more_loading.style.display = 'unset'
+
+  at_more_btn.addEventListener('click', function(){
+    at_more_btn.setAttribute('disabled','')
+    at_more_btn.innerHTML = at_more_loading.outerHTML
+    setTimeout(() => {
+      for (const item of artitalk.splice(0,pageSize)) {
+        const nLi = endLi.cloneNode(true)
+        nLi.querySelector('.at_content').innerHTML= item.content
+        const date = new Date(item.timestamp)
+        nLi.querySelector('.at_time').innerHTML= date.toLocaleString()
+        endLi.parentElement.appendChild(nLi)
+        endLi = nLi
+      }
+      at_more_btn.innerHTML = at_more_btn_text
+      at_more_btn.removeAttribute('disabled')
+      at_more.style.display = artitalk.length ? '' : 'none'
+    }, 500);
+  })
+</script>
+<% (Array.isArray(data.imports.after) ? data.imports.after : []).forEach(function(bottom, i){ %>
+<%- bottom %>
+<% }) %>
