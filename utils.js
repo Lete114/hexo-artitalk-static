@@ -49,9 +49,8 @@ function autoInjectTime(atFilePath, atContent) {
   const doc = YAML.parseDocument(atContent)
   addTimeComment(doc.contents)
 
-  // console.log(doc.toString())
   const newArtitalkContent = doc.toString()
-  if (atContent !== newArtitalkContent) {
+  if (atContent !== newArtitalkContent && newArtitalkContent.trim() !== 'null') {
     writeFileSync(atFilePath, newArtitalkContent)
   }
 }
