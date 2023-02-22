@@ -66,7 +66,6 @@ function plugins(base_dir, plugins_path, atData) {
   plugins_path = Array.isArray(plugins_path) ? plugins_path : [plugins_path]
   plugins_path.forEach((plugin_path) => {
     try {
-      console.log('plugin_path', plugin_path)
       plugin_path = getAbsolutePath(base_dir, plugin_path)
       require(plugin_path)(atData)
     } catch (error) {
