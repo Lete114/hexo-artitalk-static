@@ -1,6 +1,6 @@
 {
   "name": "hexo-artitalk-static",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Artitalk 静态版，本地编写说说(就像写文章一样)，需要 hexo g 生成",
   "main": "index.js",
   "scripts": {
