@@ -33,6 +33,7 @@ npm install hexo-artitalk-static
 artitalk:
   enable: true
   title: Artitalk ## 标题
+  path: artitalk/index.html ## 生成路径
   pageSize: 5 ## 显示几条说说
   avatar: ## 说说头像
   plugins: [] ## 插件，具体请看下文

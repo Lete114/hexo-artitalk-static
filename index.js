@@ -9,12 +9,13 @@ const logo = 'data:image/svg+xml;base64,' + Buffer.from(readFileSync(join(__dirn
 const defaultConfig = {
   enable: true,
   title: 'Artitalk',
+  path: 'artitalk/index.html',
   pageSize: 5,
   plugins: [],
   imports: { before: [], after: [] }
 }
 hexo.extend.generator.register('artitalk', async (locals) => {
-  const { enable, title, pageSize, plugins: plugins_path, template, imports } = Object.assign({}, defaultConfig, hexo.config.artitalk)
+  const { enable, title, path, pageSize, plugins: plugins_path, template, imports } = Object.assign({}, defaultConfig, hexo.config.artitalk)
   if (!enable) return
 
   const atFilePath = getArtitalkFilePath(hexo.source_dir)
@@ -34,7 +35,7 @@ hexo.extend.generator.register('artitalk', async (locals) => {
   const content = await ejs.renderFile(filename, data)
 
   return {
-    path: 'artitalk.html',
+    path,
     data: { type: 'artitalk', content, title },
     comments: false,
     layout: ['artitalk', 'page']
