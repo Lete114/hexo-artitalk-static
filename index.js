@@ -15,7 +15,7 @@ const defaultConfig = {
   imports: { before: [], after: [] }
 }
 hexo.extend.generator.register('artitalk', async (locals) => {
-  const { enable, title, path, pageSize, plugins: plugins_path, template, imports } = Object.assign({}, defaultConfig, hexo.config.artitalk)
+  const { enable, title, path, pageSize, avatar, plugins: plugins_path, template, imports } = Object.assign({}, defaultConfig, hexo.config.artitalk)
   if (!enable) return
 
   const atFilePath = getArtitalkFilePath(hexo.source_dir)
@@ -27,7 +27,7 @@ hexo.extend.generator.register('artitalk', async (locals) => {
 
   const data = {
     formatDate,
-    data: { logo, pageSize, avatar: defaultConfig.avatar, imports },
+    data: { logo, pageSize, avatar, imports },
     artitalk: atData
   }
 
