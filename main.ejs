@@ -112,57 +112,203 @@
   </div>
 </div>
 
-<script>
-  const pageSize = <%= data.pageSize %>
-  const artitalk = <%-JSON.stringify(items)%>
-  const at_more = document.querySelector('.at_more')
+<script data-pjax="">
+  var pjaxFlag = false; //pjax加载标识
+  var at_more_btn_click; // 在全局作用域声明 at_more_btn_click
 
-  at_more.style.display = artitalk.length ? '' : 'none'
-
-  const avatar = document.querySelectorAll('.at_avatar')
-  avatar.forEach((el)=>{
-    el.src = '<%-data.logo%>'
-  })
-
-  <%if(data.avatar){%>
-  const img = new Image()
-  img.src = '<%= data.avatar %>'
-  img.style.display = 'none'
-  document.body.appendChild(img)
-  img.onload = function(){
-    document.body.removeChild(img)
-    avatar.forEach((el)=>{
-      el.src = img.src
-    })
-  }
-  <%}%>
-
-  let endLi = document.querySelectorAll('.at_item')
-  endLi = endLi[endLi.length-1]
-
-  const at_more_btn = document.querySelector('.at_more_btn')
-  const at_more_btn_text = at_more_btn.textContent
-  const at_more_loading = document.querySelector('.at_more_loading').cloneNode(true)
-  at_more_loading.style.display = 'unset'
-
-  at_more_btn.addEventListener('click', function(){
-    at_more_btn.setAttribute('disabled','')
-    at_more_btn.innerHTML = at_more_loading.outerHTML
-    setTimeout(() => {
-      for (const item of artitalk.splice(0,pageSize)) {
-        const nLi = endLi.cloneNode(true)
-        nLi.querySelector('.at_content').innerHTML= item.content
-        const date = new Date(item.timestamp)
-        nLi.querySelector('.at_time').innerHTML= date.toLocaleString()
-        endLi.parentElement.appendChild(nLi)
-        endLi = nLi
+  function initPage() {
+    var pageSize = <%= data.pageSize %>;
+    var artitalk = <%-JSON.stringify(items)%>;
+    
+    var at_more = document.querySelector('.at_more');
+    if (at_more) { // 确保at_more元素存在
+      at_more.style.display = artitalk.length ? '' : 'none';
+    }
+    
+    var avatar = document.querySelectorAll('.at_avatar');
+    avatar.forEach((el) => {
+      el.src = '<%-data.logo%>';
+    });
+    
+    <%if(data.avatar){%>
+    var img = new Image();
+    img.src = '<%= data.avatar %>';
+    img.style.display = 'none';
+    document.body.appendChild(img);
+    img.onload = function() {
+      document.body.removeChild(img);
+      avatar.forEach((el) => {
+        el.src = img.src;
+      });
+    };
+    <%}%>
+    
+    var endLi = document.querySelectorAll('.at_item');
+    endLi = endLi[endLi.length - 1];
+    
+    var at_more_btn = document.querySelector('.at_more_btn');
+    if (at_more_btn) { // 确保at_more_btn元素存在
+      var at_more_btn_text = at_more_btn.textContent;
+      var at_more_loading = document.querySelector('.at_more_loading').cloneNode(true);
+      at_more_loading.style.display = 'unset';
+      
+      at_more_btn_click = function() { // 在这里定义 at_more_btn_click
+        if (at_more_btn) {
+          at_more_btn.setAttribute('disabled', '');
+          at_more_btn.innerHTML = at_more_loading.outerHTML;
+          setTimeout(() => {
+            for (const item of artitalk.splice(0, pageSize)) {
+              const nLi = endLi.cloneNode(true);
+              nLi.querySelector('.at_content').innerHTML = item.content;
+              const date = new Date(item.timestamp);
+              nLi.querySelector('.at_time').innerHTML = date.toLocaleString();
+              endLi.parentElement.appendChild(nLi);
+              endLi = nLi;
+            }
+            at_more_btn.innerHTML = at_more_btn_text;
+            at_more_btn.removeAttribute('disabled');
+            // 这里再次确保at_more存在
+            if (at_more) {
+              at_more.style.display = artitalk.length ? '' : 'none';
+            }
+          }, 500);
+        }
       }
-      at_more_btn.innerHTML = at_more_btn_text
-      at_more_btn.removeAttribute('disabled')
-      at_more.style.display = artitalk.length ? '' : 'none'
-    }, 500);
-  })
-</script>
+      if(at_more_btn){
+        at_more_btn.addEventListener('click', at_more_btn_click);
+      }
+    }
+  }
+
+    document.addEventListener('pjax:success', function() {
+      pjaxFlag = true;
+      //应用样式表
+      let styleContent = `
+          .at_items {
+          padding: 0;
+          list-style: none;
+        }
+        .at_item {
+          display: flex;
+        }
+        .at_avatar {
+          border: 1px solid #ddd;
+          padding: 2px;
+          float: left;
+          border-radius: 64px;
+          transition: all 1s;
+          min-width: 48px;
+          height: 48px;
+        }
+        .at_content_container {
+          margin: 0 0 20px 20px;
+          position: relative;
+          padding: 10px;
+          border-radius: 5px;
+          background: var(--at-color, rgba(219, 255, 247, 0.5));
+          box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+        }
+        .at_content_container::before {
+          content: '';
+          position: absolute;
+          top: 20px; /* 将箭头位置垂直居中 */
+          left: -10px; /* 设置箭头的左侧位置 */
+          border-top: 10px solid transparent;
+          border-bottom: 10px solid transparent;
+          border-right: 10px solid var(--at-color, rgba(219, 255, 247, 0.5)); /* 设置箭头的样式和颜色 */
+          transform: translateY(-50%); /* 将箭头位置垂直居中 */
+        }
+        .at_item:nth-child(odd) .at_content_container {
+          --at-color: rgba(255, 219, 227, 0.5);
+        }
+        .at_content {
+          white-space: pre-wrap;
+        }
+        .at_time {
+          margin-top: 10px;
+          font-size: 12px;
+        }
+        .at_more {
+          display: flex;
+          justify-content: center;
+          margin: 16px 0 10px;
+        }
+        .at_more_btn {
+          opacity: 0.8;
+          width: auto;
+          min-width: 80px;
+          height: 36px;
+          border: none;
+          color: #fff;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 16px;
+          line-height: 20px;
+          font-weight: 600;
+          font-size: 12px;
+          border-radius: 12px;
+          background-color: #f4645f;
+        }
+        .at_more_btn[disabled] {
+          opacity: 0.5;
+          cursor: not-allowed;
+          cursor: no-drop;
+        }
+        .at_loading {
+          animation: at_loading 0.8s linear infinite;
+        }
+        .at_more_loading {
+          display: none;
+          height: inherit;
+        }
+        @keyframes at_loading {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `;
+
+      // 检查特定的<style>标签是否已经存在
+      let customStyleTag = document.getElementById('custom-style');
+
+      if (!customStyleTag) {
+        customStyleTag = document.createElement('style');
+        customStyleTag.type = 'text/css';
+        customStyleTag.id = 'custom-style';
+
+        // 将<style>元素添加到<head>
+        document.head.appendChild(customStyleTag);
+      }
+
+      // 将CSS样式内容注入到<style>标签中
+      if (customStyleTag.styleSheet) { // 针对IE
+        customStyleTag.styleSheet.cssText = styleContent;
+      } else {
+        // 清除之前的样式
+        while (customStyleTag.firstChild) {
+          customStyleTag.removeChild(customStyleTag.firstChild);
+        }
+        // 添加新的样式
+        customStyleTag.appendChild(document.createTextNode(styleContent));
+      }
+      //清除监听器，避免重复绑定
+      var at_more_btn = document.querySelector('.at_more_btn');
+      if(at_more_btn){
+        at_more_btn.removeEventListener('click', at_more_btn_click);
+      }
+
+      initPage();
+    });
+    //未通过pjax加载时初始化
+    if (!pjaxFlag) {
+      initPage();
+    }
+  </script>
 <% (Array.isArray(data.imports.after) ? data.imports.after : []).forEach(function(bottom, i){ %>
 <%- bottom %>
 <% }) %>
