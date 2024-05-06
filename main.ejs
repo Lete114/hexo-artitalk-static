@@ -173,7 +173,9 @@
   }
 
   //适配pjax
+  var pjaxFlag = false; //是否通过pjax加载
   document.addEventListener('pjax:success', function() {
+    pjaxFlag = true;
     //应用样式表
     let styleContent = `
           .at_items {
@@ -289,7 +291,10 @@
     }
     initPage();
   });
-  initPage();
+  //未通过pjax加载时初始化
+  if (!pjaxFlag) {
+    initPage();
+  }
 </script>
 <% (Array.isArray(data.imports.after) ? data.imports.after : []).forEach(function(bottom, i){ %>
 <%- bottom %>
